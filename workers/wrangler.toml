@@ -1,0 +1,20 @@
+name = "japanese-wallpaper-ai"
+main = "src/index.ts"
+compatibility_date = "2024-10-03"
+compatibility_flags = ["nodejs_compat_v2"]
+
+
+[vars]
+BASE_URL = "https://japanese-wallpaper-ai.beanvault.workers.dev"
+# [[kv_namespaces]]
+# binding = "MY_KV_NAMESPACE"
+# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "japanese-wallpaper-ai"
+
+[[d1_databases]]
+binding = "DB"                                       # i.e. available in your Worker on env.DB
+database_name = "japanese-wallpapers-ai"
+database_id = "e23d362e-744e-4597-96a5-ca91d39b0b71"
