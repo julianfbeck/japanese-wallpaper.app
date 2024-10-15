@@ -3,7 +3,10 @@ import { Bindings, Variables } from "../core/workers";
 import { downloadAndStoreImage } from "../lib/bucket";
 import { ReplicateLogFlux, upscaleWallpaper } from "../lib/replicate";
 import { categoryCounters, wallpapers } from "../models/models";
-import { getCategoryValue } from "../wallpaper-types";
+import {
+	getCategoryValue,
+	JapaneseDarkModeWallpaperCategories,
+} from "../wallpaper-types";
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
@@ -26,17 +29,36 @@ app.get("/today", async (c) => {
 	return c.body("Done");
 });
 
-//gets image categories
-app.get("/categories", async (c) => {
-	const categories = await c.var.db.select().from(categoryCounters);
+const isDarkModeCategory = (category: string) => {
+	return JapaneseDarkModeWallpaperCategories.has(category);
+};
 
-	const extendedCategories = categories.map((category) => {
-		return {
-			category: category.category,
-			count: category.count,
-			value: getCategoryValue(category.category),
-		};
-	});
+//gets image categories
+app.get("/categories/light", async (c) => {
+	const categories = await c.var.db.select().from(categoryCounters);
+	const extendedCategories = categories
+		.filter((category) => !isDarkModeCategory(category.category))
+		.map((category) => {
+			return {
+				category: category.category,
+				count: category.count,
+				value: getCategoryValue(category.category),
+			};
+		});
+	return c.json(extendedCategories);
+});
+
+app.get("/categories/dark", async (c) => {
+	const categories = await c.var.db.select().from(categoryCounters);
+	const extendedCategories = categories
+		.filter((category) => isDarkModeCategory(category.category))
+		.map((category) => {
+			return {
+				category: category.category,
+				count: category.count,
+				value: getCategoryValue(category.category),
+			};
+		});
 	return c.json(extendedCategories);
 });
 

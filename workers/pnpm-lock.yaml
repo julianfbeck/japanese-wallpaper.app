@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@hono/swagger-ui':
-        specifier: ^0.2.1
+        specifier: ^0.2.2
         version: 0.2.2(hono@4.6.3)
       '@hono/zod-openapi':
         specifier: ^0.9.10

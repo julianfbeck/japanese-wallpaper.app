@@ -1,4 +1,5 @@
 import { Ai } from "@cloudflare/workers-types/experimental";
+import { swaggerUI } from "@hono/swagger-ui";
 import { Hono } from "hono";
 import { basicAuth } from "hono/basic-auth";
 import { DrizzleDB } from "./core/database";
@@ -21,7 +22,9 @@ app.get("/", (c) => {
 //     username: "beju",
 //     password: "wnq!wyc4emu!EMT0pnt",
 //   })
+
 // );
+app.get("/ui", swaggerUI({ url: "/api" }));
 
 app.get("/internal/page", (c) => {
 	return c.text("You are authorized");
@@ -30,7 +33,7 @@ app.use(async (ctx, next) => {
 	ctx.set("db", DrizzleDB.getInstance(ctx.env.DB));
 	await next();
 });
-app.route("/internal/generate", generate);
+app.route("generate", generate);
 
 app.route("/webhook", webhook);
 

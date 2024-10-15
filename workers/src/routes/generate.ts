@@ -2,24 +2,23 @@ import { Hono } from "hono";
 import OpenAI from "openai";
 import { Bindings, Variables } from "../core/workers";
 import { createWallpaper } from "../lib/replicate";
-import { getCategoryValue, getRandomCategoryKey } from "../wallpaper-types";
+import {
+	getCategoryValue,
+	getDarkModeCategoryValue,
+	getRandomCategoryKey,
+	getRandomDarkModeCategoryKey,
+	JapaneseDarkModeWallpaperCategories,
+} from "../wallpaper-types";
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
-app.get("/images", async (c) => {
+app.get("/light", async (c) => {
 	// Check if request has a query for the category, if not use random
 	const categoryKey = c.req.query("category") || getRandomCategoryKey();
 	const categoryValue = getCategoryValue(categoryKey);
 
 	console.log("Category Key: ", categoryKey);
 	console.log("Category Value: ", categoryValue);
-
-	// List of categories that should have realistic keywords appended
-	const realisticCategories = ["shizen", "tokai", "nihonchiri", "kenchiku"];
-
-	// Keywords to append for realistic images
-	const realisticKeywords =
-		"ultra-realistic, high definition, photorealistic, detailed, 8K resolution";
 
 	const client = new OpenAI({
 		apiKey: c.env.OPENAI_API_KEY,
@@ -30,26 +29,24 @@ app.get("/images", async (c) => {
 			{
 				role: "system",
 				content:
-					"You are an expert AI specializing in creating unique and captivating prompts for wallpaper image generation, with a focus on Japanese themes and aesthetics. Your goal is to craft prompts that result in visually stunning, original, and highly detailed images perfect for desktop or mobile wallpapers. Consider current design trends, artistic techniques, and the specific category provided to create truly exceptional wallpapers.",
+					"You are an expert AI specializing in creating unique and captivating prompts for wallpaper image generation. Your goal is to craft prompts that result in visually stunning, original, and highly detailed images perfect for desktop or mobile wallpapers. Consider current design trends, artistic techniques, and the specific category provided to create truly exceptional wallpapers.",
 			},
 			{
 				role: "user",
-				content: `Generate a unique and detailed prompt for a Japanese-themed wallpaper image based on the following category: "${categoryValue}". 
-		  
-		  Consider these aspects in your prompt:
-		  1. Visual style (e.g., photorealistic, abstract, illustrated)
-		  2. Color palette or mood
-		  3. Composition and focal points
-		  4. Textures and patterns
-		  5. Lighting and atmosphere
-		  6. Any unique elements that would make this wallpaper stand out
-		  7. Japanese cultural elements or aesthetics relevant to the category
-		  
-		  Craft a prompt that will result in a wallpaper that's not only visually appealing but also original and captivating.
-		  ${realisticCategories.includes(categoryKey) ? `Ensure the image is ${realisticKeywords}.` : ""}`,
+				content: `Generate a unique and detailed prompt for a wallpaper image based on the following category: "${categoryValue}". 
+        
+        Consider these aspects in your prompt:
+        1. Visual style (e.g., photorealistic, abstract, illustrated)
+        2. Color palette or mood
+        3. Composition and focal points
+        4. Textures and patterns
+        5. Lighting and atmosphere
+        6. Any unique elements that would make this wallpaper stand out
+        
+        Craft a prompt that will result in a wallpaper that's not only visually appealing but also original and captivating.`,
 			},
 		],
-		model: "gpt-4",
+		model: "gpt-4o",
 	});
 
 	const promptContent = chatCompletion.choices[0]?.message?.content;
@@ -58,6 +55,53 @@ app.get("/images", async (c) => {
 		await createWallpaper(c.env, promptContent, categoryKey);
 	} else {
 		console.error("No prompt content generated");
+	}
+
+	return c.json(chatCompletion.choices[0]?.message);
+});
+
+app.get("/dark", async (c) => {
+	// Check if request has a query for the category, if not use random
+	const categoryKey = c.req.query("category") || getRandomDarkModeCategoryKey();
+	const categoryValue = getDarkModeCategoryValue(categoryKey);
+
+	console.log("Dark Mode Category Key: ", categoryKey);
+	console.log("Dark Mode Category Value: ", categoryValue);
+
+	const client = new OpenAI({
+		apiKey: c.env.OPENAI_API_KEY,
+	});
+
+	const chatCompletion = await client.chat.completions.create({
+		messages: [
+			{
+				role: "system",
+				content:
+					"You are an expert AI specializing in creating unique and captivating prompts for dark mode wallpaper image generation. Your goal is to craft prompts that result in visually stunning, original, and highly detailed images perfect for desktop or mobile dark mode wallpapers. Focus on themes that work well with darker color palettes, emphasizing contrast and mood. Consider current design trends, artistic techniques, and the specific category provided to create truly exceptional dark mode wallpapers.",
+			},
+			{
+				role: "user",
+				content: `Generate a unique and detailed prompt for a dark mode wallpaper image based on the following category: "${categoryValue}".
+
+	      Consider these aspects in your prompt:
+	      1. Visual style (e.g., photorealistic, abstract, illustrated) suitable for dark mode
+	      2. Dark color palette with accents that pop
+	      3. Composition and focal points that work well on dark backgrounds
+	      4. Textures and patterns that enhance the dark mode aesthetic
+	      5. Dramatic lighting and atmosphere
+	      6. Any unique elements that would make this dark mode wallpaper stand out
+
+	      Craft a prompt that will result in a wallpaper that's not only visually appealing in dark mode but also original and captivating. Ensure the image will primarily use darker tones while incorporating striking visual elements.`,
+			},
+		],
+		model: "gpt-4",
+	});
+
+	const promptContent = chatCompletion.choices[0]?.message?.content;
+	if (promptContent) {
+		await createWallpaper(c.env, promptContent, categoryKey);
+	} else {
+		console.error("No prompt content generated for dark mode wallpaper");
 	}
 
 	return c.json(chatCompletion.choices[0]?.message);
