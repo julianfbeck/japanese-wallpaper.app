@@ -13,8 +13,8 @@ struct WallpaperLatestCard: View {
     let wallpaper: Wallpaper
     
     var body: some View {
-        let thumbnailURL = wallpaper.imageURL(isDownscaled: false)
-        let fullSizeURL = wallpaper.imageURL(isDownscaled: true)
+        let thumbnailURL = wallpaper.imageURL(isDownscaled: true)
+        let fullSizeURL = wallpaper.imageURL(isDownscaled: false)
         
         NavigationLink(destination: WallpaperDetailView(imageURL: fullSizeURL!)) {
                    ZStack {
@@ -38,7 +38,6 @@ struct WallpaperLatestCard: View {
                                EmptyView()
                            }
                        }
-                       .padding(10)
                    }
                }
                .buttonStyle(PlainButtonStyle())

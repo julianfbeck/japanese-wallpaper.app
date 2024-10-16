@@ -13,7 +13,7 @@ struct Category: Codable, Identifiable {
     let category: String
     let count: Int
     let value: String
-    let sorting: Int
+    let sorting: Int?
     var id: String { category }
 }
 

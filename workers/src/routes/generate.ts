@@ -13,7 +13,6 @@ import {
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 app.get("/light", async (c) => {
-	// Check if request has a query for the category, if not use random
 	const categoryKey = c.req.query("category") || getRandomCategoryKey();
 	const categoryValue = getCategoryValue(categoryKey);
 
@@ -28,25 +27,14 @@ app.get("/light", async (c) => {
 		messages: [
 			{
 				role: "system",
-				content:
-					"You are an expert AI specializing in creating unique and captivating prompts for wallpaper image generation. Your goal is to craft prompts that result in visually stunning, original, and highly detailed images perfect for desktop or mobile wallpapers. Consider current design trends, artistic techniques, and the specific category provided to create truly exceptional wallpapers.",
+				content: "Create concise, vivid prompts for Japanese-style wallpapers.",
 			},
 			{
 				role: "user",
-				content: `Generate a unique and detailed prompt for a wallpaper image based on the following category: "${categoryValue}". 
-        
-        Consider these aspects in your prompt:
-        1. Visual style (e.g., photorealistic, abstract, illustrated)
-        2. Color palette or mood
-        3. Composition and focal points
-        4. Textures and patterns
-        5. Lighting and atmosphere
-        6. Any unique elements that would make this wallpaper stand out
-        
-        Craft a prompt that will result in a wallpaper that's not only visually appealing but also original and captivating.`,
+				content: `Generate a brief, detailed prompt for a Japanese-style wallpaper based on: "${categoryValue}". Include visual style, colors, and unique elements. This is for a Japanese wallpaper generator app.`,
 			},
 		],
-		model: "gpt-4o",
+		model: "gpt-4",
 	});
 
 	const promptContent = chatCompletion.choices[0]?.message?.content;
@@ -61,7 +49,6 @@ app.get("/light", async (c) => {
 });
 
 app.get("/dark", async (c) => {
-	// Check if request has a query for the category, if not use random
 	const categoryKey = c.req.query("category") || getRandomDarkModeCategoryKey();
 	const categoryValue = getDarkModeCategoryValue(categoryKey);
 
@@ -77,21 +64,11 @@ app.get("/dark", async (c) => {
 			{
 				role: "system",
 				content:
-					"You are an expert AI specializing in creating unique and captivating prompts for dark mode wallpaper image generation. Your goal is to craft prompts that result in visually stunning, original, and highly detailed images perfect for desktop or mobile dark mode wallpapers. Focus on themes that work well with darker color palettes, emphasizing contrast and mood. Consider current design trends, artistic techniques, and the specific category provided to create truly exceptional dark mode wallpapers.",
+					"Create concise, vivid prompts for Japanese-style dark mode wallpapers.",
 			},
 			{
 				role: "user",
-				content: `Generate a unique and detailed prompt for a dark mode wallpaper image based on the following category: "${categoryValue}".
-
-	      Consider these aspects in your prompt:
-	      1. Visual style (e.g., photorealistic, abstract, illustrated) suitable for dark mode
-	      2. Dark color palette with accents that pop
-	      3. Composition and focal points that work well on dark backgrounds
-	      4. Textures and patterns that enhance the dark mode aesthetic
-	      5. Dramatic lighting and atmosphere
-	      6. Any unique elements that would make this dark mode wallpaper stand out
-
-	      Craft a prompt that will result in a wallpaper that's not only visually appealing in dark mode but also original and captivating. Ensure the image will primarily use darker tones while incorporating striking visual elements.`,
+				content: `Generate a brief, detailed prompt for a Japanese-style dark mode wallpaper based on: "${categoryValue}". Focus on dark palette, contrast, and mood. This is for a Japanese wallpaper generator app.`,
 			},
 		],
 		model: "gpt-4",

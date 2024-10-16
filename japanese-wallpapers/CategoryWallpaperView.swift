@@ -9,12 +9,13 @@
 import SwiftUI
 import CachedAsyncImage
 
+
 struct CategoryWallpaperView: View {
     let category: Category
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(category.value)
+            Text(category.category.capitalized)
                 .font(.title2)
                 .fontWeight(.bold)
                 .padding(.horizontal)
@@ -45,6 +46,12 @@ struct CategoryWallpaperView: View {
                             .cornerRadius(10)
                         }
                         .buttonStyle(PlainButtonStyle())
+                        .scrollTransition { content, phase in
+                            content
+                                .opacity(phase.isIdentity ? 1 : 0)
+                                .scaleEffect(phase.isIdentity ? 1 : 0.8)
+                                .blur(radius: phase.isIdentity ? 0 : 10)
+                        }
                     }
                 }
                 .padding(.horizontal)
@@ -53,17 +60,10 @@ struct CategoryWallpaperView: View {
     }
     
     private func imageURL(for category: String, index: Int, isDownscaled: Bool) -> URL {
-           let paddedIndex = String(format: "%05d", index)
-           let suffix = isDownscaled ? "_downscaled" : ""
-           return URL(string: "https://wallpaper.apps.juli.sh/\(category)_\(paddedIndex)\(suffix).jpg")!
-       }
-}
-
-// Preview provider for SwiftUI canvas
-struct CategoryWallpaperView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            CategoryWallpaperView(category: Category(category: "nature", count: 2, value: "Nature Landscapes"))
-        }
+        let paddedIndex = String(format: "%05d", index)
+        let suffix = isDownscaled ? "_downscaled" : ""
+        return URL(string: "\(Constants.API.imageBaseUrl)/\(category)_\(paddedIndex)\(suffix).jpg")!
     }
 }
+// Preview provider for SwiftUI canvas
+

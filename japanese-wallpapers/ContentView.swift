@@ -29,10 +29,25 @@ struct ContentView: View {
 }
 
 struct AllView: View {
+    @State private var wallpaperController = WallpaperController()
+
     var body: some View {
-        NavigationView {
-            Text("All Wallpapers")
-                .navigationTitle("All")
+        NavigationStack {
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 20) {
+                    ForEach(wallpaperController.categoriesLight) { category in
+                        CategoryWallpaperView(category: category)
+                    }
+                }
+                .padding(.vertical)
+            }
+            .navigationTitle("Wallpapers")
+        }
+        .refreshable {
+            await wallpaperController.fetchCategoriesLight()
+        }
+        .task {
+            await wallpaperController.fetchCategoriesLight()
         }
     }
 }
@@ -40,10 +55,25 @@ struct AllView: View {
 
 
 struct DarkView: View {
+    @State private var wallpaperController = WallpaperController()
+
     var body: some View {
-        NavigationView {
-            Text("Dark Mode Wallpapers")
-                .navigationTitle("Dark")
+        NavigationStack {
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 20) {
+                    ForEach(wallpaperController.categoriesDark) { category in
+                        CategoryWallpaperView(category: category)
+                    }
+                }
+                .padding(.vertical)
+            }
+            .navigationTitle("Wallpapers")
+        }
+        .refreshable {
+            await wallpaperController.fetchCategoriesDark()
+        }
+        .task {
+            await wallpaperController.fetchCategoriesDark()
         }
     }
 }
