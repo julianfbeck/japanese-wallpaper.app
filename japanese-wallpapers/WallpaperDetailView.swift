@@ -6,13 +6,6 @@
 //
 
 
-//
-//  WallpaperDetailView.swift
-//  wallpaper-ai
-//
-//  Created by Julian Beck on 10.10.24.
-//
-
 
 import SwiftUI
 import CachedAsyncImage
@@ -53,16 +46,12 @@ struct WallpaperDetailView: View {
                 .edgesIgnoringSafeArea(.all)
                 
                 VStack {
+                    Spacer()
                     HStack {
-                        Button(action: {
-                            dismiss()
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.title)
-                                .foregroundColor(.white)
-                                .padding()
-                        }
                         Spacer()
+                        CloseButton(action: { print("hey")})
+                            .padding(.top, 40)
+                            .padding(.trailing, 20)
                     }
                     Spacer()
                     
@@ -160,6 +149,26 @@ struct DownloadButton: View {
                 .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 2)
         }
         .disabled(!isEnabled)
+    }
+}
+
+struct CloseButton: View {
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "xmark")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(.white)
+                .frame(width: 40, height: 40)
+                .background(Color.red)
+                .clipShape(Circle())
+                .overlay(
+                    Circle()
+                        .stroke(Color.white, lineWidth: 2)
+                )
+                .shadow(color: Color.black.opacity(0.3), radius: 3, x: 0, y: 1)
+        }.padding(.top, 20)
     }
 }
 
