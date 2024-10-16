@@ -10,10 +10,14 @@ import Foundation
 
 enum Constants {
     enum API {
-        static let categoriesLight = URL(string: "https://wallpaper-ai.beanvault.workers.dev/api/categories")!
+        static let categoriesLightURL = URL(string: "https://japanese-wallpaper-ai.beanvault.workers.dev/api/categories/light")!
+        static let categoriesDarkURL = URL(string: "https://japanese-wallpaper-ai.beanvault.workers.dev/api/categories/dark")!
+        static let fetchLatestWallpapersURL = URL(string: "https://japanese-wallpaper-ai.beanvault.workers.dev/api/latest")!
+        static let imageBaseUrl = "https://japanese-wallpaper-ai.juli.sh"
     }
     
     enum UserDefaultsKeys {
-        static let cachedCategories = "cachedCategories"
+        static let cachedCategoriesLight = "cachedCategoriesLight"
+        static let cachedCategoriesDark = "cachedCategoriesDark"
     }
 }

@@ -1,5 +1,13 @@
 //
 //  WallpaperDetailView.swift
+//  japanese-wallpapers
+//
+//  Created by Julian Beck on 16.10.24.
+//
+
+
+//
+//  WallpaperDetailView.swift
 //  wallpaper-ai
 //
 //  Created by Julian Beck on 10.10.24.

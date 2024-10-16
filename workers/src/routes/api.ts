@@ -29,6 +29,15 @@ app.get("/today", async (c) => {
 	return c.body("Done");
 });
 
+app.get("/latest", async (c) => {
+	const wallpapers = await await c.var.db.query.wallpapers.findMany({
+		orderBy: (wallpapers, { desc }) => [desc(wallpapers.created_at)],
+		limit: 3,
+	});
+
+	return c.json(wallpapers);
+});
+
 const isDarkModeCategory = (category: string) => {
 	return JapaneseDarkModeWallpaperCategories.has(category);
 };

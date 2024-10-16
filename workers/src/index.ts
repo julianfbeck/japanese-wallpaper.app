@@ -33,7 +33,7 @@ app.use(async (ctx, next) => {
 	ctx.set("db", DrizzleDB.getInstance(ctx.env.DB));
 	await next();
 });
-app.route("generate", generate);
+app.route("/generate", generate);
 
 app.route("/webhook", webhook);
 

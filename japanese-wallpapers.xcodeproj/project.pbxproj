@@ -9,10 +9,12 @@
 /* Begin PBXBuildFile section */
 		9AEA39242CBD7B62008E99D6 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 9AEA39232CBD7B62008E99D6 /* GoogleMobileAds */; };
 		9AEA39462CBF996F008E99D6 /* CachedAsyncImage in Frameworks */ = {isa = PBXBuildFile; productRef = 9AEA39452CBF996F008E99D6 /* CachedAsyncImage */; };
+		9AEA39662CC01B5A008E99D6 /* NewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AEA39652CC01B5A008E99D6 /* NewView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		9AEA39112CBD7A11008E99D6 /* japanese-wallpapers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "japanese-wallpapers.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9AEA39652CC01B5A008E99D6 /* NewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -54,6 +56,7 @@
 			children = (
 				9AEA39132CBD7A11008E99D6 /* japanese-wallpapers */,
 				9AEA39122CBD7A11008E99D6 /* Products */,
+				9AEA39652CC01B5A008E99D6 /* NewView.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -145,6 +148,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9AEA39662CC01B5A008E99D6 /* NewView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

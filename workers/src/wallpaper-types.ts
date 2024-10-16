@@ -24,6 +24,7 @@ export const WallpaperCategoryMap = new Map<string, string>([
 	["liveilluminated", "Dynamic and illuminated live wallpapers"],
 ]);
 
+
 export const getRandomDarkModeCategoryKey = () => {
 	const categories = Array.from(JapaneseDarkModeWallpaperCategories.keys());
 	return categories[Math.floor(Math.random() * categories.length)];

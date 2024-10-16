@@ -73,7 +73,7 @@ async function createWallpaper(
 	await replicate.predictions.create({
 		model: "black-forest-labs/flux-pro",
 		input: input,
-		webhook: `https://wallpaper-ai.beanvault.workers.dev/webhook/generated?category=${escapedAndLowercasedCategory}`,
+		webhook: `https://japanese-wallpaper-ai.beanvault.workers.dev/webhook/generated?category=${escapedAndLowercasedCategory}`,
 		webhook_events_filter: ["completed"],
 	});
 }
@@ -112,7 +112,7 @@ async function upscaleWallpaper(env: Bindings, url: string, category: string) {
 			{
 				input: input,
 				wait: false,
-				webhook: `https://wallpaper-ai.beanvault.workers.dev/webhook/upscale?category=${category}`,
+				webhook: `https://japanese-wallpaper-ai.beanvault.workers.dev/webhook/upscale?category=${category}`,
 				webhook_events_filter: ["completed"],
 			}
 		)

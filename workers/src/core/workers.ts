@@ -1,4 +1,5 @@
 import { DrizzleD1Database } from "drizzle-orm/d1";
+import * as schema from "./../models/models";
 
 export type Bindings = {
 	BUCKET: R2Bucket;
@@ -10,5 +11,5 @@ export type Bindings = {
 };
 
 export type Variables = {
-	db: DrizzleD1Database<Record<string, never>>;
+	db: DrizzleD1Database<typeof schema>;
 };
