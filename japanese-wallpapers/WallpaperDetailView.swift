@@ -11,6 +11,7 @@ import SwiftUI
 import CachedAsyncImage
 import UIKit
 
+
 struct WallpaperDetailView: View {
     let imageURL: URL
     @Environment(\.dismiss) private var dismiss
@@ -47,20 +48,12 @@ struct WallpaperDetailView: View {
                 
                 VStack {
                     Spacer()
-                    HStack {
-                        Spacer()
-                        CloseButton(action: { print("hey")})
-                            .padding(.top, 40)
-                            .padding(.trailing, 20)
-                    }
-                    Spacer()
                     
                     if isDownloading {
                         DownloadProgressView(progress: $downloadProgress)
                             .frame(height: 60)
                             .padding(.horizontal)
                     } else {
-                        Spacer()
                         DownloadButton(action: initiateDownloadProcess, isEnabled: adManager.isAdReady || isAdShown)
                     }
                 }
@@ -130,6 +123,27 @@ struct WallpaperDetailView: View {
     }
 }
 
+struct CloseButton: View {
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "xmark")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(.white)
+                .frame(width: 40, height: 40)
+                .background(Color.red)
+                .clipShape(Circle())
+                .overlay(
+                    Circle()
+                        .stroke(Color.white, lineWidth: 2)
+                )
+                .shadow(color: Color.black.opacity(0.3), radius: 3, x: 0, y: 1)
+        }
+        .contentShape(Rectangle()) // Ensure the entire button area is tappable
+    }
+}
+
 struct DownloadButton: View {
     let action: () -> Void
     let isEnabled: Bool
@@ -149,26 +163,6 @@ struct DownloadButton: View {
                 .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 2)
         }
         .disabled(!isEnabled)
-    }
-}
-
-struct CloseButton: View {
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: "xmark")
-                .font(.system(size: 14, weight: .bold))
-                .foregroundColor(.white)
-                .frame(width: 40, height: 40)
-                .background(Color.red)
-                .clipShape(Circle())
-                .overlay(
-                    Circle()
-                        .stroke(Color.white, lineWidth: 2)
-                )
-                .shadow(color: Color.black.opacity(0.3), radius: 3, x: 0, y: 1)
-        }.padding(.top, 20)
     }
 }
 

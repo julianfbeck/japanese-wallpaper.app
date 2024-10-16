@@ -56,7 +56,7 @@ async function createWallpaper(
 	console.log("Running the model...");
 	const input = {
 		prompt: `Create a phone Wallpaper in following Category: ${category} Prompt: ${prompt}`,
-		steps: 40,
+		steps: 30,
 		width: 662,
 		height: 1440,
 		// steps: 5,
@@ -92,7 +92,7 @@ async function upscaleWallpaper(env: Bindings, url: string, category: string) {
 		sharpen: 0,
 		sd_model: "juggernaut_reborn.safetensors [338b85bc4f]",
 		scheduler: "DPM++ 3M SDE Karras",
-		creativity: 0.35,
+		creativity: 0.25,
 		lora_links: "",
 		downscaling: false,
 		resemblance: 0.6,
