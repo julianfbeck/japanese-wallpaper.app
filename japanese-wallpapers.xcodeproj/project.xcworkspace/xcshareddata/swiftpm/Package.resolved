@@ -1,5 +1,5 @@
 {
-  "originHash" : "3b9752ff554d5fdc91a7c01c2322a5d851b0979c36f02eb55188d9ab9e3d7e77",
+  "originHash" : "098cac794ee302758197c61404f3c2cad7483ccc3a2e12031c123bf46416144c",
   "pins" : [
     {
       "identity" : "swift-package-manager-google-mobile-ads",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "74f2ec169551c3b924947b473716142a0b983e10",
         "version" : "2.6.0"
+      }
+    },
+    {
+      "identity" : "swiftui-cached-async-image",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/lorenzofiamingo/swiftui-cached-async-image",
+      "state" : {
+        "revision" : "467a3d17479887943ab917a379e62bbaff60ac8a",
+        "version" : "2.1.1"
       }
     }
   ],

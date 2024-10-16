@@ -10,7 +10,7 @@ import Foundation
 
 enum Constants {
     enum API {
-        static let categoriesURL = URL(string: "https://wallpaper-ai.beanvault.workers.dev/api/categories")!
+        static let categoriesLight = URL(string: "https://wallpaper-ai.beanvault.workers.dev/api/categories")!
     }
     
     enum UserDefaultsKeys {

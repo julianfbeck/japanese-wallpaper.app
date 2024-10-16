@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9AEA39242CBD7B62008E99D6 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 9AEA39232CBD7B62008E99D6 /* GoogleMobileAds */; };
+		9AEA39462CBF996F008E99D6 /* CachedAsyncImage in Frameworks */ = {isa = PBXBuildFile; productRef = 9AEA39452CBF996F008E99D6 /* CachedAsyncImage */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +42,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9AEA39242CBD7B62008E99D6 /* GoogleMobileAds in Frameworks */,
+				9AEA39462CBF996F008E99D6 /* CachedAsyncImage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +86,7 @@
 			name = "japanese-wallpapers";
 			packageProductDependencies = (
 				9AEA39232CBD7B62008E99D6 /* GoogleMobileAds */,
+				9AEA39452CBF996F008E99D6 /* CachedAsyncImage */,
 			);
 			productName = "japanese-wallpapers";
 			productReference = 9AEA39112CBD7A11008E99D6 /* japanese-wallpapers.app */;
@@ -115,6 +118,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				9AEA39222CBD7B62008E99D6 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+				9AEA39442CBF996F008E99D6 /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9AEA39122CBD7A11008E99D6 /* Products */;
@@ -358,6 +362,14 @@
 				minimumVersion = 11.10.0;
 			};
 		};
+		9AEA39442CBF996F008E99D6 /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/lorenzofiamingo/swiftui-cached-async-image";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -365,6 +377,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9AEA39222CBD7B62008E99D6 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
 			productName = GoogleMobileAds;
+		};
+		9AEA39452CBF996F008E99D6 /* CachedAsyncImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9AEA39442CBF996F008E99D6 /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */;
+			productName = CachedAsyncImage;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

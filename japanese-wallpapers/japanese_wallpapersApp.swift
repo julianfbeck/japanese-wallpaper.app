@@ -8,10 +8,34 @@
 import SwiftUI
 
 @main
-struct japanese_wallpapersApp: App {
+struct YourApp: App {
+    @StateObject private var adManager = GlobalAdManager.shared
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(adManager)
         }
     }
 }
+
+//struct ContentView: View {
+//    @StateObject private var adManager = GlobalAdManager.shared
+//    private let adViewControllerRepresentable = AdViewControllerRepresentable()
+//    
+//    var body: some View {
+//        VStack {
+//            Text("Interstitial Ad Example")
+//                .font(.largeTitle)
+//                .background(adViewControllerRepresentable)
+//            
+//            Button("Show Ad") {
+//                adManager.showAd()
+//            }
+//            .disabled(!adManager.isAdReady)
+//        }
+//        .onAppear {
+//            adManager.loadAd()
+//        }
+//    }
+//}
