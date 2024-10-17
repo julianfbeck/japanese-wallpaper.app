@@ -2,30 +2,77 @@ import SwiftUI
 import GoogleMobileAds
 import UIKit
 
+import SwiftUI
+import Combine
+
 class GlobalAdManager: ObservableObject {
     static let shared = GlobalAdManager()
     private let coordinator = InterstitialAdCoordinator()
+    
     @Published var isAdReady = false
+    @Published var isAdShown = false
+    @Published var adLoadFailed = false
+    
+    private var cancellables = Set<AnyCancellable>()
     
     private init() {
-        loadAd()
+        GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = [ "28716d5496bfdc5958be9b599af8ceeb" ]
+
+        setupAdLoadingObserver()
     }
     
-    func loadAd() {
+    private func setupAdLoadingObserver() {
+        $isAdReady
+            .sink { [weak self] ready in
+                if !ready {
+                    self?.loadAd()
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    func loadAd(completion: ((Result<Void, Error>) -> Void)? = nil) {
         coordinator.loadAd { [weak self] success in
             DispatchQueue.main.async {
                 self?.isAdReady = success
+                self?.adLoadFailed = !success
+                
+                if success {
+                    completion?(.success(()))
+                } else {
+                    let error = NSError(domain: "AdLoadingError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to load ad"])
+                    completion?(.failure(error))
+                }
             }
         }
     }
     
-    func showAd() {
+    func showAd(completion: @escaping (Bool) -> Void) {
+        guard isAdReady else {
+            completion(false)
+            return
+        }
+        
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let rootViewController = windowScene.windows.first?.rootViewController {
             coordinator.showAd(from: rootViewController)
+            isAdShown = true
+            isAdReady = false  // Reset ad ready state
+            completion(true)
         } else {
             print("Unable to find root view controller")
+            completion(false)
         }
+    }
+    
+    func resetAdState() {
+        isAdShown = false
+        adLoadFailed = false
+        loadAd()
+    }
+    
+    func canShowAd() -> Bool {
+        return isAdReady || isAdShown || adLoadFailed
     }
 }
 

@@ -11,17 +11,17 @@ import UIKit
 import Network
 
 
+
 struct WallpaperDetailView: View {
     let imageURL: URL
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var adManager: GlobalAdManager
-    @StateObject private var networkMonitor = NetworkMonitor()
     @State private var isDownloading = false
     @State private var downloadProgress: Float = 0.0
     @State private var showAlert = false
     @State private var alertMessage = ""
-    @State private var isAdShown = false
-    @State private var adLoadFailed = false
+    @State private var showSuccessAlert = false
+    @State private var downloadButtonState: DownloadButtonState = .loading
     
     var body: some View {
         GeometryReader { geometry in
@@ -56,8 +56,8 @@ struct WallpaperDetailView: View {
                             .padding(.horizontal)
                     } else {
                         HStack(spacing: 20) {
-                            CloseButton(action: dismiss)
-                            DownloadButton(action: initiateDownloadProcess, isEnabled: networkMonitor.isConnected && (adManager.isAdReady || isAdShown || adLoadFailed))
+                            CloseButton(action: {dismiss()})
+                            DownloadButton(action: handleDownloadButtonPress, state: downloadButtonState)
                         }
                     }
                 }
@@ -69,49 +69,54 @@ struct WallpaperDetailView: View {
         .alert(isPresented: $showAlert) {
             Alert(title: Text("Status"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
         }
+        .alert("Success", isPresented: $showSuccessAlert) {
+            Button("OK") { }
+        } message: {
+            Text("Image saved to Photos successfully!")
+        }
         .onAppear {
-            if networkMonitor.isConnected {
-                loadAd()
-            } else {
-                alertMessage = "No internet connection. Please connect to the internet and try again."
-                showAlert = true
-            }
+            loadAd()
         }
     }
     
     private func loadAd() {
+        downloadButtonState = .loading
         adManager.loadAd { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success:
-                    // Ad loaded successfully
-                    break
+                    self.downloadButtonState = .readyToPlayAd
                 case .failure(let error):
                     print("Failed to load ad: \(error.localizedDescription)")
-                    self.adLoadFailed = true
+                    self.downloadButtonState = .readyToDownload
                 }
             }
         }
     }
     
-    private func initiateDownloadProcess() {
-        guard networkMonitor.isConnected else {
-            alertMessage = "No internet connection. Please connect to the internet and try again."
-            showAlert = true
-            return
-        }
-        
-        if isAdShown || adLoadFailed {
+    private func handleDownloadButtonPress() {
+        switch downloadButtonState {
+        case .loading:
+            // Do nothing, button should be disabled
+            break
+        case .readyToPlayAd:
+            playAd()
+        case .readyToDownload:
             downloadImage()
-        } else if adManager.isAdReady {
-            adManager.showAd()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { // Delay to ensure ad is shown
-                isAdShown = true
-                downloadImage()
+        }
+    }
+    
+    private func playAd() {
+        adManager.showAd { success in
+            DispatchQueue.main.async {
+                if success {
+                    self.downloadButtonState = .readyToDownload
+                } else {
+                    self.alertMessage = "Failed to play ad. You can now download the image."
+                    self.showAlert = true
+                    self.downloadButtonState = .readyToDownload
+                }
             }
-        } else {
-            alertMessage = "Preparing download. Please try again in a moment."
-            showAlert = true
         }
     }
     
@@ -135,9 +140,10 @@ struct WallpaperDetailView: View {
                 }
                 
                 UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-                self.alertMessage = "Image saved to Photos successfully!"
-                self.showAlert = true
+                self.showSuccessAlert = true
                 self.isDownloading = false
+                self.adManager.resetAdState()
+                self.loadAd() // Reload ad after successful download
             }
         }.resume()
         
@@ -153,21 +159,55 @@ struct WallpaperDetailView: View {
     }
 }
 
-class NetworkMonitor: ObservableObject {
-    private let networkMonitor = NWPathMonitor()
-    private let workerQueue = DispatchQueue(label: "Monitor")
-    @Published var isConnected = false
-
-    init() {
-        networkMonitor.pathUpdateHandler = { path in
-            DispatchQueue.main.async {
-                self.isConnected = path.status == .satisfied
-            }
-        }
-        networkMonitor.start(queue: workerQueue)
-    }
+enum DownloadButtonState {
+    case loading
+    case readyToPlayAd
+    case readyToDownload
 }
 
+struct DownloadButton: View {
+    let action: () -> Void
+    let state: DownloadButtonState
+    
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: buttonIcon)
+                .font(.system(size: 24))
+                .foregroundColor(.white)
+                .frame(width: 60, height: 60)
+                .background(buttonColor)
+                .clipShape(Circle())
+                .overlay(
+                    Circle()
+                        .stroke(Color.white, lineWidth: 2)
+                )
+                .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 2)
+        }
+        .disabled(state == .loading)
+    }
+    
+    private var buttonColor: Color {
+        switch state {
+        case .loading:
+            return .gray
+        case .readyToPlayAd:
+            return .red
+        case .readyToDownload:
+            return .green
+        }
+    }
+    
+    private var buttonIcon: String {
+        switch state {
+        case .loading:
+            return "hourglass"
+        case .readyToPlayAd:
+            return "play.fill"
+        case .readyToDownload:
+            return "arrow.down.to.line"
+        }
+    }
+}
 
 struct CloseButton: View {
     let action: () -> Void
@@ -186,28 +226,6 @@ struct CloseButton: View {
                 )
                 .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 2)
         }
-    }
-}
-
-struct DownloadButton: View {
-    let action: () -> Void
-    let isEnabled: Bool
-    
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: "arrow.down.to.line")
-                .font(.system(size: 24))
-                .foregroundColor(.white)
-                .frame(width: 60, height: 60)
-                .background(isEnabled ? Color.red : Color.gray)
-                .clipShape(Circle())
-                .overlay(
-                    Circle()
-                        .stroke(Color.white, lineWidth: 2)
-                )
-                .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 2)
-        }
-        .disabled(!isEnabled)
     }
 }
 
