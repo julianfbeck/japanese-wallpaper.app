@@ -5,22 +5,23 @@
 //  Created by Julian Beck on 16.10.24.
 //
 
-
-
 import SwiftUI
 import CachedAsyncImage
 import UIKit
+import Network
 
 
 struct WallpaperDetailView: View {
     let imageURL: URL
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var adManager: GlobalAdManager
+    @StateObject private var networkMonitor = NetworkMonitor()
     @State private var isDownloading = false
     @State private var downloadProgress: Float = 0.0
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var isAdShown = false
+    @State private var adLoadFailed = false
     
     var body: some View {
         GeometryReader { geometry in
@@ -54,7 +55,10 @@ struct WallpaperDetailView: View {
                             .frame(height: 60)
                             .padding(.horizontal)
                     } else {
-                        DownloadButton(action: initiateDownloadProcess, isEnabled: adManager.isAdReady || isAdShown)
+                        HStack(spacing: 20) {
+                            CloseButton(action: dismiss)
+                            DownloadButton(action: initiateDownloadProcess, isEnabled: networkMonitor.isConnected && (adManager.isAdReady || isAdShown || adLoadFailed))
+                        }
                     }
                 }
                 .padding(.bottom, geometry.size.height / 6) // Position in lower third
@@ -63,15 +67,41 @@ struct WallpaperDetailView: View {
         .edgesIgnoringSafeArea(.all)
         .statusBar(hidden: true)
         .alert(isPresented: $showAlert) {
-            Alert(title: Text("Download Status"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+            Alert(title: Text("Status"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
         }
         .onAppear {
-            adManager.loadAd()
+            if networkMonitor.isConnected {
+                loadAd()
+            } else {
+                alertMessage = "No internet connection. Please connect to the internet and try again."
+                showAlert = true
+            }
+        }
+    }
+    
+    private func loadAd() {
+        adManager.loadAd { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    // Ad loaded successfully
+                    break
+                case .failure(let error):
+                    print("Failed to load ad: \(error.localizedDescription)")
+                    self.adLoadFailed = true
+                }
+            }
         }
     }
     
     private func initiateDownloadProcess() {
-        if isAdShown {
+        guard networkMonitor.isConnected else {
+            alertMessage = "No internet connection. Please connect to the internet and try again."
+            showAlert = true
+            return
+        }
+        
+        if isAdShown || adLoadFailed {
             downloadImage()
         } else if adManager.isAdReady {
             adManager.showAd()
@@ -80,7 +110,7 @@ struct WallpaperDetailView: View {
                 downloadImage()
             }
         } else {
-            alertMessage = "Please wait for the ad to load before downloading."
+            alertMessage = "Preparing download. Please try again in a moment."
             showAlert = true
         }
     }
@@ -123,24 +153,39 @@ struct WallpaperDetailView: View {
     }
 }
 
+class NetworkMonitor: ObservableObject {
+    private let networkMonitor = NWPathMonitor()
+    private let workerQueue = DispatchQueue(label: "Monitor")
+    @Published var isConnected = false
+
+    init() {
+        networkMonitor.pathUpdateHandler = { path in
+            DispatchQueue.main.async {
+                self.isConnected = path.status == .satisfied
+            }
+        }
+        networkMonitor.start(queue: workerQueue)
+    }
+}
+
+
 struct CloseButton: View {
     let action: () -> Void
     
     var body: some View {
         Button(action: action) {
             Image(systemName: "xmark")
-                .font(.system(size: 14, weight: .bold))
+                .font(.system(size: 24))
                 .foregroundColor(.white)
-                .frame(width: 40, height: 40)
-                .background(Color.red)
+                .frame(width: 60, height: 60)
+                .background(Color.black.opacity(0.6))
                 .clipShape(Circle())
                 .overlay(
                     Circle()
                         .stroke(Color.white, lineWidth: 2)
                 )
-                .shadow(color: Color.black.opacity(0.3), radius: 3, x: 0, y: 1)
+                .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 2)
         }
-        .contentShape(Rectangle()) // Ensure the entire button area is tappable
     }
 }
 
