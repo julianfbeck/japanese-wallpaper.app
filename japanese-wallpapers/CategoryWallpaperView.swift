@@ -25,7 +25,8 @@ struct CategoryWallpaperView: View {
                     ForEach(1...category.count, id: \.self) { index in
                         let thumbnailURL = imageURL(for: category.category, index: index, isDownscaled: true)
                         let fullSizeURL = imageURL(for: category.category, index: index, isDownscaled: false)
-                        NavigationLink(destination: WallpaperDetailView(imageURL: fullSizeURL)) {
+                        let name = getName(for: category.category, index: index)
+                        NavigationLink(destination: WallpaperDetailView(imageURL: fullSizeURL, name: name)) {
                             CachedAsyncImage(url: thumbnailURL) { phase in
                                 switch phase {
                                 case .empty:
@@ -63,6 +64,11 @@ struct CategoryWallpaperView: View {
         let paddedIndex = String(format: "%05d", index)
         let suffix = isDownscaled ? "_downscaled" : ""
         return URL(string: "\(Constants.API.imageBaseUrl)/\(category)_\(paddedIndex)\(suffix).jpg")!
+    }
+    
+    private func getName(for category: String, index: Int) -> String {
+        let paddedIndex = String(format: "%05d", index)
+        return "\(category)_\(paddedIndex)"
     }
 }
 // Preview provider for SwiftUI canvas

@@ -16,7 +16,7 @@ struct WallpaperLatestCard: View {
         let thumbnailURL = wallpaper.imageURL(isDownscaled: true)
         let fullSizeURL = wallpaper.imageURL(isDownscaled: false)
         
-        NavigationLink(destination: WallpaperDetailView(imageURL: fullSizeURL!)) {
+        NavigationLink(destination: WallpaperDetailView(imageURL: fullSizeURL!, name: wallpaper.filename)) {
                    ZStack {
                        RoundedRectangle(cornerRadius: 15)
                            .fill(Color.white)

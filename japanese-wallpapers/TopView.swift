@@ -1,23 +1,55 @@
+//
+//  TopView.swift
+//  japanese-wallpapers
+//
+//  Created by Julian Beck on 20.10.24.
+//
+
+import SwiftUI
+
 struct TopView: View {
     @State private var wallpaperController = WallpaperController()
-
+    @State private var currentIndex: Int?
+    
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 20) {
-                    ForEach(wallpaperController.categoriesLight) { category in
-                        CategoryWallpaperView(category: category)
+        NavigationView {
+            GeometryReader { geometry in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(spacing: 20) {
+                        ForEach(Array(wallpaperController.topDownloads.enumerated()), id: \.element.id) { index, wallpaper in
+                            WallpaperLatestCard(wallpaper: wallpaper)
+                                .scrollTransition { content, phase in
+                                    content
+                                        .rotation3DEffect(
+                                            .degrees(phase.isIdentity ? 0 : 60),
+                                            axis: (x: 0, y: 1, z: 0)
+                                        )
+                                        .scaleEffect(phase.isIdentity ? 1 : 0.8)
+                                }
+                                .id(index)
+                        }
+                    }
+                    .scrollTargetLayout()
+                }
+                .scrollTargetBehavior(.viewAligned)
+                .scrollPosition(id: $currentIndex)
+                .onChange(of: currentIndex) { oldValue, newValue in
+                    if oldValue != newValue {
+                        hapticFeedback()
                     }
                 }
-                .padding(.vertical)
+                .padding()
             }
-            .navigationTitle("Wallpapers")
-        }
-        .refreshable {
-            await wallpaperController.fetchCategoriesLight()
+            .navigationTitle("Latest Wallpapers")
         }
         .task {
-            await wallpaperController.fetchCategoriesLight()
+            await wallpaperController.fetchTopDownloads()
         }
     }
+    
+    private func hapticFeedback() {
+        let impact = UIImpactFeedbackGenerator(style: .light)
+        impact.impactOccurred()
+    }
 }
+

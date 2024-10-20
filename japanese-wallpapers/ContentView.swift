@@ -20,6 +20,10 @@ struct ContentView: View {
                     Label("Dark", systemImage: "moon").environment(\.symbolVariants, .none)
                 }
             
+            TopView()
+                .tabItem {
+                    Label("Top", systemImage: "flame").environment(\.symbolVariants, .none)
+                }
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gear").environment(\.symbolVariants, .none)
@@ -51,6 +55,7 @@ struct AllView: View {
         }
     }
 }
+
 
 
 

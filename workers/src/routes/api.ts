@@ -1,6 +1,6 @@
+import { desc, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { Bindings, Variables } from "../core/workers";
-import { downloadAndStoreImage } from "../lib/bucket";
 import { ReplicateLogFlux, upscaleWallpaper } from "../lib/replicate";
 import { categoryCounters, wallpapers } from "../models/models";
 import {
@@ -69,6 +69,59 @@ app.get("/categories/dark", async (c) => {
 			};
 		});
 	return c.json(extendedCategories);
+});
+
+app.post("/download", async (c) => {
+	const { name } = await c.req.json();
+
+	if (!name) {
+		c.status(400);
+		return c.json({ error: "Wallpaper name is required" });
+	}
+
+	try {
+		const result = await c.var.db
+			.update(wallpapers)
+			.set({ downloads: sql`${wallpapers.downloads} + 1` })
+			.where(eq(wallpapers.filename, name))
+			.returning({ updatedDownloads: wallpapers.downloads });
+
+		if (result.length === 0) {
+			c.status(404);
+			return c.json({ error: "Wallpaper not found" });
+		}
+
+		return c.json({
+			message: "Download count incremented successfully",
+			newDownloadCount: result[0].updatedDownloads,
+		});
+	} catch (error) {
+		console.error("Error updating download count:", error);
+		c.status(500);
+		return c.json({ error: "Internal server error" });
+	}
+});
+
+app.get("/top-downloads", async (c) => {
+	try {
+		const topWallpapers = await c.var.db
+			.select({
+				id: wallpapers.id,
+				filename: wallpapers.filename,
+				category: wallpapers.category,
+				downloads: wallpapers.downloads,
+				created_at: wallpapers.created_at,
+			})
+			.from(wallpapers)
+			.orderBy(desc(wallpapers.downloads))
+			.limit(10);
+
+		return c.json(topWallpapers);
+	} catch (error) {
+		console.error("Error fetching top downloads:", error);
+		c.status(500);
+		return c.json({ error: "Internal server error" });
+	}
 });
 
 export default app;

@@ -30,7 +30,7 @@ struct Wallpaper: Codable, Identifiable {
         case downloads
     }
     
-   
+    
 }
 extension Wallpaper {
     func imageURL(isDownscaled: Bool) -> URL? {
@@ -50,6 +50,7 @@ class WallpaperController {
     var categoriesLight: [Category] = []
     var categoriesDark: [Category] = []
     var latestScreenshots: [Wallpaper] = []
+    var topDownloads: [Wallpaper] = []
     private let userDefaults = UserDefaults.standard
     
     init() {
@@ -117,5 +118,35 @@ class WallpaperController {
         }
     }
     
+    @MainActor
+    func incrementDownload(for wallpaperName: String) async -> Int? {
+        do {
+            let url = Constants.API.downloadIncrementURL
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            let body = ["name": wallpaperName]
+            request.httpBody = try JSONEncoder().encode(body)
+            
+            let (data, _) = try await URLSession.shared.data(for: request)
+            let response = try JSONDecoder().decode([String: Int].self, from: data)
+            return response["newDownloadCount"]
+        } catch {
+            print("Error incrementing download count: \(error)")
+            return nil
+        }
+    }
+    
+    @MainActor
+    func fetchTopDownloads() async {
+        do {
+            let (data, _) = try await URLSession.shared.data(from: Constants.API.topDownloadsURL)
+            let decodedWallpapers = try JSONDecoder().decode([Wallpaper].self, from: data)
+            topDownloads = decodedWallpapers
+        } catch {
+            print("Error fetching top downloads: \(error)")
+        }
+    }
     
 }

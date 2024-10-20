@@ -12,12 +12,16 @@ import Network
 
 
 struct WallpaperDetailView: View {
+    @State private var wallpaperController = WallpaperController()
     @StateObject private var viewModel: WallpaperDetailViewModel
     @EnvironmentObject private var adManager: GlobalAdManager
     @Environment(\.dismiss) private var dismiss
     
-    init(imageURL: URL) {
+    let name: String
+    
+    init(imageURL: URL, name: String) {
         _viewModel = StateObject(wrappedValue: WallpaperDetailViewModel(imageURL: imageURL))
+        self.name = name
     }
     
     var body: some View {
@@ -64,7 +68,13 @@ struct WallpaperDetailView: View {
                             }
                             HStack(spacing: 20) {
                                 CloseButton(action: {dismiss()})
-                                DownloadButton(action: viewModel.handleDownloadButtonPress, state: viewModel.downloadButtonState)
+                                DownloadButton(action: {
+                                    viewModel.handleDownloadButtonPress()
+                                    
+                                    Task {
+                                        await wallpaperController.incrementDownload(for: self.name )
+                                    }
+                                }, state: viewModel.downloadButtonState)
                             }
                         }
                     }
@@ -178,7 +188,7 @@ struct DownloadProgressView: View {
 
 struct WallpaperDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        WallpaperDetailView(imageURL: URL(string: "https://wallpaper.apps.juli.sh/nature_00001_downscaled.jpg")!)
+        WallpaperDetailView(imageURL: URL(string: "https://wallpaper.apps.juli.sh/nature_00001_downscaled.jpg")!, name: "test")
             .environmentObject(GlobalAdManager.shared)
     }
 }
