@@ -11,14 +11,13 @@ class GlobalAdManager: ObservableObject {
     
     @Published var isAdReady = false
     @Published var isAdShown = false
-    @Published var adLoadFailed = false
     
     private var cancellables = Set<AnyCancellable>()
     
     private init() {
         GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = [ "28716d5496bfdc5958be9b599af8ceeb" ]
-
         setupAdLoadingObserver()
+        loadAd()
     }
     
     private func setupAdLoadingObserver() {
@@ -31,17 +30,16 @@ class GlobalAdManager: ObservableObject {
             .store(in: &cancellables)
     }
     
-    func loadAd(completion: ((Result<Void, Error>) -> Void)? = nil) {
+    func loadAd() {
         coordinator.loadAd { [weak self] success in
             DispatchQueue.main.async {
                 self?.isAdReady = success
-                self?.adLoadFailed = !success
-                
-                if success {
-                    completion?(.success(()))
-                } else {
-                    let error = NSError(domain: "AdLoadingError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to load ad"])
-                    completion?(.failure(error))
+                print("Add loaded")
+                if !success {
+                    // If loading fails, try again after a short delay
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                        self?.loadAd()
+                    }
                 }
             }
         }
@@ -59,6 +57,9 @@ class GlobalAdManager: ObservableObject {
             isAdShown = true
             isAdReady = false  // Reset ad ready state
             completion(true)
+            
+            // Load the next ad immediately after showing one
+            loadAd()
         } else {
             print("Unable to find root view controller")
             completion(false)
@@ -67,15 +68,11 @@ class GlobalAdManager: ObservableObject {
     
     func resetAdState() {
         isAdShown = false
-        adLoadFailed = false
-        loadAd()
-    }
-    
-    func canShowAd() -> Bool {
-        return isAdReady || isAdShown || adLoadFailed
+        if !isAdReady {
+            loadAd()
+        }
     }
 }
-
 // The rest of the code (InterstitialAdCoordinator, AdViewControllerRepresentable, etc.) remains the same
 
 class InterstitialAdCoordinator: NSObject, GADFullScreenContentDelegate {

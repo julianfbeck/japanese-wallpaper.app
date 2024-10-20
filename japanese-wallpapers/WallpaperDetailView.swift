@@ -11,24 +11,21 @@ import UIKit
 import Network
 
 
-
 struct WallpaperDetailView: View {
-    let imageURL: URL
-    @Environment(\.dismiss) private var dismiss
+    @StateObject private var viewModel: WallpaperDetailViewModel
     @EnvironmentObject private var adManager: GlobalAdManager
-    @State private var isDownloading = false
-    @State private var downloadProgress: Float = 0.0
-    @State private var showAlert = false
-    @State private var alertMessage = ""
-    @State private var showSuccessAlert = false
-    @State private var downloadButtonState: DownloadButtonState = .loading
+    @Environment(\.dismiss) private var dismiss
+    
+    init(imageURL: URL) {
+        _viewModel = StateObject(wrappedValue: WallpaperDetailViewModel(imageURL: imageURL))
+    }
     
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 Color.black.edgesIgnoringSafeArea(.all)
                 
-                CachedAsyncImage(url: imageURL) { phase in
+                CachedAsyncImage(url: viewModel.imageURL) { phase in
                     switch phase {
                     case .empty:
                         ProgressView()
@@ -50,14 +47,25 @@ struct WallpaperDetailView: View {
                 VStack {
                     Spacer()
                     
-                    if isDownloading {
-                        DownloadProgressView(progress: $downloadProgress)
+                    if viewModel.isDownloading {
+                        DownloadProgressView(progress: $viewModel.downloadProgress)
                             .frame(height: 60)
                             .padding(.horizontal)
                     } else {
-                        HStack(spacing: 20) {
-                            CloseButton(action: {dismiss()})
-                            DownloadButton(action: handleDownloadButtonPress, state: downloadButtonState)
+                        VStack(spacing: 10) {
+                            if viewModel.downloadButtonState == .readyToPlayAd {
+                                Text("Watch an Ad to Download")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 10)
+                                    .background(Color.red)
+                                    .cornerRadius(20)
+                            }
+                            HStack(spacing: 20) {
+                                CloseButton(action: {dismiss()})
+                                DownloadButton(action: viewModel.handleDownloadButtonPress, state: viewModel.downloadButtonState)
+                            }
                         }
                     }
                 }
@@ -66,104 +74,20 @@ struct WallpaperDetailView: View {
         }
         .edgesIgnoringSafeArea(.all)
         .statusBar(hidden: true)
-        .alert(isPresented: $showAlert) {
-            Alert(title: Text("Status"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+        .alert(isPresented: $viewModel.showAlert) {
+            Alert(title: Text("Status"), message: Text(viewModel.alertMessage), dismissButton: .default(Text("OK")))
         }
-        .alert("Success", isPresented: $showSuccessAlert) {
+        .alert("Success", isPresented: $viewModel.showSuccessAlert) {
             Button("OK") { }
         } message: {
             Text("Image saved to Photos successfully!")
         }
         .onAppear {
-            loadAd()
-        }
-    }
-    
-    private func loadAd() {
-        downloadButtonState = .loading
-        adManager.loadAd { result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success:
-                    self.downloadButtonState = .readyToPlayAd
-                case .failure(let error):
-                    print("Failed to load ad: \(error.localizedDescription)")
-                    self.downloadButtonState = .readyToDownload
-                }
-            }
-        }
-    }
-    
-    private func handleDownloadButtonPress() {
-        switch downloadButtonState {
-        case .loading:
-            // Do nothing, button should be disabled
-            break
-        case .readyToPlayAd:
-            playAd()
-        case .readyToDownload:
-            downloadImage()
-        }
-    }
-    
-    private func playAd() {
-        adManager.showAd { success in
-            DispatchQueue.main.async {
-                if success {
-                    self.downloadButtonState = .readyToDownload
-                } else {
-                    self.alertMessage = "Failed to play ad. You can now download the image."
-                    self.showAlert = true
-                    self.downloadButtonState = .readyToDownload
-                }
-            }
-        }
-    }
-    
-    private func downloadImage() {
-        isDownloading = true
-        
-        URLSession.shared.dataTask(with: imageURL) { data, response, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    self.alertMessage = "Download failed: \(error.localizedDescription)"
-                    self.showAlert = true
-                    self.isDownloading = false
-                    return
-                }
-                
-                guard let data = data, let image = UIImage(data: data) else {
-                    self.alertMessage = "Failed to create image from downloaded data"
-                    self.showAlert = true
-                    self.isDownloading = false
-                    return
-                }
-                
-                UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-                self.showSuccessAlert = true
-                self.isDownloading = false
-                self.adManager.resetAdState()
-                self.loadAd() // Reload ad after successful download
-            }
-        }.resume()
-        
-        // Simulating download progress
-        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            if downloadProgress < 1.0 {
-                downloadProgress += 0.05
-            } else {
-                timer.invalidate()
-                downloadProgress = 0.0
-            }
+            viewModel.setup(adManager: adManager)
         }
     }
 }
 
-enum DownloadButtonState {
-    case loading
-    case readyToPlayAd
-    case readyToDownload
-}
 
 struct DownloadButton: View {
     let action: () -> Void
@@ -208,6 +132,7 @@ struct DownloadButton: View {
         }
     }
 }
+
 
 struct CloseButton: View {
     let action: () -> Void
