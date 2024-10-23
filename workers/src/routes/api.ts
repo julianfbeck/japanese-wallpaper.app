@@ -124,4 +124,13 @@ app.get("/top-downloads", async (c) => {
 	}
 });
 
+app.get("/wallpapers", async (c) => {
+	const files = await c.env.BUCKET.list({ limit: 1000 });
+	return Response.json({
+		wallpapers: files.objects.map(
+			(file) => `https://japanese-wallpaper-ai.juli.sh/${file.key}`
+		),
+	});
+});
+
 export default app;

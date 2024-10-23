@@ -13,51 +13,51 @@ struct OnboardingView: View {
     @State private var currentPage = 0
     
     let pages: [OnboardingPage] = [
-        OnboardingPage(
-            title: "Japanese Wallpapers",
-            subtitle: "壁紙コレクション",
-            description: "Discover a curated collection of stunning wallpapers inspired by Japanese art and culture.",
-            wallpapers: [
-                "https://japanese-wallpaper-ai.juli.sh/denshipunk_00005.jpg",
-                "mt-fuji-spring",
-                "tokyo-night"
-            ],
-            accentColor: .red
-        ),
-        OnboardingPage(
-            title: "Anime Collection",
-            subtitle: "アニメコレクション",
-            description: "Featuring your favorite anime series with both classic and modern designs.",
-            wallpapers: [
-                "anime-art1",
-                "anime-landscape",
-                "anime-city"
-            ],
-            accentColor: .purple
-        ),
-        OnboardingPage(
-            title: "Traditional Art",
-            subtitle: "伝統的な芸術",
-            description: "Beautiful ukiyo-e prints and traditional Japanese artwork for your device.",
-            wallpapers: [
-                "ukiyoe-wave",
-                "japanese-garden",
-                "sakura-tree"
-            ],
-            accentColor: .blue
-        ),
-        OnboardingPage(
-            title: "Modern Japan",
-            subtitle: "現代の日本",
-            description: "Contemporary Japanese designs and urban photography.",
-            wallpapers: [
-                "shibuya-crossing",
-                "neon-alley",
-                "minimal-zen"
-            ],
-            accentColor: .indigo
-        )
-    ]
+           OnboardingPage(
+               title: "Minimalist Art",
+               subtitle: "ミニマルアート",
+               description: "Clean, elegant minimalist Japanese-inspired designs.",
+               wallpapers: [
+                   "minimaru_00002_downscaled",
+                   "minimaru_00003_downscaled",
+                   "monokuro_00004_downscaled"
+               ],
+               accentColor: .red
+           ),
+           OnboardingPage(
+               title: "Traditional Style",
+               subtitle: "伝統的なスタイル",
+               description: "Beautiful artworks inspired by Japanese culture.",
+               wallpapers: [
+                   "sumieart_00002_downscaled",
+                   "tokai_00007_downscaled",
+                   "ukiyoe_00002_downscaled"
+               ],
+               accentColor: .purple
+           ),
+           OnboardingPage(
+               title: "Seasonal Beauty",
+               subtitle: "季節の美しさ",
+               description: "Experience the beauty of Japanese seasons.",
+               wallpapers: [
+                   "kisetsu_00004_downscaled",
+                   "tsukimi_00004_downscaled",
+                   "gekkouen_00002_downscaled"
+               ],
+               accentColor: .blue
+           ),
+           OnboardingPage(
+               title: "Fantasy World",
+               subtitle: "ファンタジーワールド",
+               description: "Discover magical Japanese-inspired worlds.",
+               wallpapers: [
+                   "uchuu_00001_downscaled",
+                   "yorunomachi_00002_downscaled",
+                   "youkaiworld_00012_downscaled"
+               ],
+               accentColor: .indigo
+           )
+       ]
     
     var body: some View {
         ZStack {
@@ -128,7 +128,7 @@ struct OnboardingPageView: View {
     let page: OnboardingPage
     
     var body: some View {
-        VStack(spacing: 25) {
+        VStack {
             // Text content
             VStack(spacing: 12) {
                 Text(page.title)
@@ -137,21 +137,20 @@ struct OnboardingPageView: View {
                 Text(page.subtitle)
                     .font(.title2)
                     .foregroundStyle(page.accentColor)
-                
-                Text(page.description)
-                    .font(.body)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 32)
-                    .padding(.top, 8)
             }
             .padding(.top, 60)
             
-            // Wallpaper showcase
+            Spacer()
+            
+            // Centered Wallpaper showcase
             WallpaperShowcase(wallpapers: page.wallpapers)
                 .padding(.horizontal)
             
             Spacer()
+            
+            // Empty space for the bottom controls
+            Color.clear
+                .frame(height: 100)
         }
         .contentTransition(.opacity)
     }
@@ -178,11 +177,11 @@ struct WallpaperShowcase: View {
             WallpaperView(imageName: wallpapers[selectedImage])
                 .frame(width: 240, height: 480)
                 .shadow(radius: 20)
-                .onTapGesture {
-                    withAnimation(.spring(duration: 0.5)) {
-                        selectedImage = (selectedImage + 1) % wallpapers.count
-                    }
-                }
+//                .onTapGesture {
+//                    withAnimation(.spring(duration: 0.5)) {
+//                        selectedImage = (selectedImage + 1) % wallpapers.count
+//                    }
+//                }
         }
         .frame(height: 400)
     }
