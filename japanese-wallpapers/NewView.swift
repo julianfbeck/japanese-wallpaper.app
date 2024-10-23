@@ -41,6 +41,7 @@ struct NewView: View {
                 .padding()
             }
             .navigationTitle("Latest Wallpapers")
+            .background(JapaneseMeshGradientBackground())
         }
         .task {
             await wallpaperController.fetchLatestScreenshots()

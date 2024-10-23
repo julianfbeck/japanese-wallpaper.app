@@ -12,6 +12,7 @@ import CachedAsyncImage
 
 struct CategoryWallpaperView: View {
     let category: Category
+    @Namespace private var namespace
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -26,7 +27,13 @@ struct CategoryWallpaperView: View {
                         let thumbnailURL = imageURL(for: category.category, index: index, isDownscaled: true)
                         let fullSizeURL = imageURL(for: category.category, index: index, isDownscaled: false)
                         let name = getName(for: category.category, index: index)
-                        NavigationLink(destination: WallpaperDetailView(imageURL: fullSizeURL, name: name)) {
+                        NavigationLink{
+                            WallpaperDetailView(imageURL: fullSizeURL, name: name)
+                                .navigationTransition(.zoom(sourceID: fullSizeURL, in: namespace))
+                                .toolbarVisibility(.hidden, for: .navigationBar)
+
+                        }
+                        label: {
                             CachedAsyncImage(url: thumbnailURL) { phase in
                                 switch phase {
                                 case .empty:
@@ -45,6 +52,8 @@ struct CategoryWallpaperView: View {
                             .frame(width: 200, height: 300)
                             .clipped()
                             .cornerRadius(10)
+                            .matchedTransitionSource(id: fullSizeURL, in: namespace)
+
                         }
                         .buttonStyle(PlainButtonStyle())
                         .scrollTransition { content, phase in

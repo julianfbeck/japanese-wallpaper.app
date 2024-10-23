@@ -47,7 +47,7 @@ struct AllView: View {
                     }
                     .padding(.vertical)
                 }
-                .navigationTitle("Wallpapers")
+                .navigationTitle("All Wallpapers")
                 .background(JapaneseMeshGradientBackground())
             }
             .refreshable {
@@ -65,6 +65,7 @@ struct AllView: View {
 
 struct DarkView: View {
     @State private var wallpaperController = WallpaperController()
+    @Namespace var namespace
 
     var body: some View {
         NavigationStack {
@@ -76,7 +77,8 @@ struct DarkView: View {
                 }
                 .padding(.vertical)
             }
-            .navigationTitle("Wallpapers")
+            .navigationTitle("Dark Mode")
+            .background(JapaneseMeshGradientBackground())
         }
         .refreshable {
             await wallpaperController.fetchCategoriesDark()
@@ -87,14 +89,7 @@ struct DarkView: View {
     }
 }
 
-struct SettingsView: View {
-    var body: some View {
-        NavigationView {
-            Text("Settings")
-                .navigationTitle("Settings")
-        }
-    }
-}
+
 
 #Preview {
     ContentView()
