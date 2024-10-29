@@ -98,16 +98,6 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
             .sheet(isPresented: $showAbout) {
                 AboutView()
             }
@@ -163,10 +153,6 @@ struct AboutView: View {
                     VStack(spacing: 10) {
                         Text("Developed with ♥️ in Germany")
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        
-                        Text("© 2024 Your Company")
-                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                     .padding(.top, 20)

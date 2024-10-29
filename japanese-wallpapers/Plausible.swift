@@ -1,8 +1,8 @@
 //
 //  Plausible.swift
-//  fishlog
+//  icongenerator
 //
-//  Created by Julian Beck on 10.08.24.
+//  Created by Julian Beck on 15.09.24.
 //
 
 import Foundation
@@ -45,6 +45,10 @@ public class Plausible {
         
         // Auto-track open event with device info and app open count
         trackEvent(event: "open", path: "/open", properties: deviceInfo)
+        
+        if appOpenCount == 1 {
+            trackEvent(event: "install", path: "/install")
+        }
     }
     
     /// Sends a pageview event to Plausible for the specified path

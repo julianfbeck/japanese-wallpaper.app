@@ -15,7 +15,9 @@ class GlobalAdManager: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     private init() {
+        #if DEBUG
         GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = [ "28716d5496bfdc5958be9b599af8ceeb" ]
+        #endif
         setupAdLoadingObserver()
         loadAd()
     }

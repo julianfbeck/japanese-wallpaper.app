@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct OnboardingView: View {
-    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding: Bool = false
+    @AppStorage("hasSeenOnboarding") var hasSeenOnboarding: Bool?
     @State private var currentPage = 0
     
     let pages: [OnboardingPage] = [
