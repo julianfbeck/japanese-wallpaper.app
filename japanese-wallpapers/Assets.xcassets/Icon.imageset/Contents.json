@@ -1,0 +1,21 @@
+{
+  "images" : [
+    {
+      "filename" : "replicate-prediction-fze1rt97chrgg0cjqna91rzgb8 (1).png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
