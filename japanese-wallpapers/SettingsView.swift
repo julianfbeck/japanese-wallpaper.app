@@ -10,42 +10,26 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("notificationsEnabled") private var notificationsEnabled = false
-    @AppStorage("autoWallpaperChange") private var autoWallpaperChange = false
-    @AppStorage("darkMode") private var darkMode = false
     @State private var showAbout = false
-    
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding: Bool?
+
     var body: some View {
         NavigationStack {
             List {
                 // General Settings Section
                 Section {
-                    Toggle(isOn: $notificationsEnabled) {
+                    Button {
+                        hasSeenOnboarding = false
+                    } label: {
                         Label {
-                            Text("Notifications")
+                            Text("Onboarding")
                         } icon: {
-                            Image(systemName: "bell.badge.fill")
-                                .foregroundStyle(.red)
-                        }
-                    }
-                    
-                    Toggle(isOn: $autoWallpaperChange) {
-                        Label {
-                            Text("Auto Change Wallpaper")
-                        } icon: {
-                            Image(systemName: "clock.fill")
+                            Image(systemName: "book.fill")
                                 .foregroundStyle(.purple)
                         }
                     }
                     
-                    Toggle(isOn: $darkMode) {
-                        Label {
-                            Text("Dark Mode")
-                        } icon: {
-                            Image(systemName: "moon.fill")
-                                .foregroundStyle(.indigo)
-                        }
-                    }
+                    
                 } header: {
                     Text("General")
                 }
@@ -63,7 +47,8 @@ struct SettingsView: View {
                         }
                     }
                     
-                    Link(destination: URL(string: "https://yourapp.com/privacy")!) {
+                    
+                    Link(destination: URL(string: "https://julianbeck.notion.site/Privacy-Policy-for-Japanese-wallpaper-app-12e96d29972e80d4a342d7882d1930d9?pvs=4")!) {
                         Label {
                             Text("Privacy Policy")
                         } icon: {
@@ -72,7 +57,7 @@ struct SettingsView: View {
                         }
                     }
                     
-                    Link(destination: URL(string: "https://yourapp.com/terms")!) {
+                    Link(destination: URL(string: "https://julianbeck.notion.site/Japanese-Wallpapers-Terms-of-use-12e96d29972e80379694f55bb6780f04?pvs=4")!) {
                         Label {
                             Text("Terms of Use")
                         } icon: {

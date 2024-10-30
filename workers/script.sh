@@ -6,7 +6,7 @@ Downscaled Images Download Script
 mkdir -p japanese_wallpapers
 
 # Extract only downscaled image URLs and download them
-grep "downscaled" paste.txt | tr -d '",' | while read -r url; do
+grep "" paste.txt | tr -d '",' | while read -r url; do
     # Extract filename from URL
     filename=$(basename "$url")
     

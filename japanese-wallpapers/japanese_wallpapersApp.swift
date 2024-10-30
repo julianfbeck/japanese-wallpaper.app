@@ -31,23 +31,3 @@ struct YourApp: App {
     }
 }
 
-//struct ContentView: View {
-//    @StateObject private var adManager = GlobalAdManager.shared
-//    private let adViewControllerRepresentable = AdViewControllerRepresentable()
-//    
-//    var body: some View {
-//        VStack {
-//            Text("Interstitial Ad Example")
-//                .font(.largeTitle)
-//                .background(adViewControllerRepresentable)
-//            
-//            Button("Show Ad") {
-//                adManager.showAd()
-//            }
-//            .disabled(!adManager.isAdReady)
-//        }
-//        .onAppear {
-//            adManager.loadAd()
-//        }
-//    }
-//}
