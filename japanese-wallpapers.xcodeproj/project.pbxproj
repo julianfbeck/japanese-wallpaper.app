@@ -7,13 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9AE061A22CC786B600190A28 /* JapaneseMeshGradientBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AE061A12CC786B600190A28 /* JapaneseMeshGradientBackground.swift */; };
 		9AEA39242CBD7B62008E99D6 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 9AEA39232CBD7B62008E99D6 /* GoogleMobileAds */; };
 		9AEA39462CBF996F008E99D6 /* CachedAsyncImage in Frameworks */ = {isa = PBXBuildFile; productRef = 9AEA39452CBF996F008E99D6 /* CachedAsyncImage */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		9AE061A12CC786B600190A28 /* JapaneseMeshGradientBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JapaneseMeshGradientBackground.swift; sourceTree = "<group>"; };
 		9AEA39112CBD7A11008E99D6 /* japanese-wallpapers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "japanese-wallpapers.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -56,7 +54,6 @@
 			children = (
 				9AEA39132CBD7A11008E99D6 /* japanese-wallpapers */,
 				9AEA39122CBD7A11008E99D6 /* Products */,
-				9AE061A12CC786B600190A28 /* JapaneseMeshGradientBackground.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -148,7 +145,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9AE061A22CC786B600190A28 /* JapaneseMeshGradientBackground.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

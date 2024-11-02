@@ -9,7 +9,6 @@ struct ContentView: View {
                 .tabItem {
                     Label("All", systemImage: "square.grid.2x2").environment(\.symbolVariants, .none)
                 }
-            
             NewView()
                 .tabItem {
                     Label("New", systemImage: "star").environment(\.symbolVariants, .none)

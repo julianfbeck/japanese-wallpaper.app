@@ -9,6 +9,7 @@ import SwiftUI
 import CachedAsyncImage
 import UIKit
 import Network
+import StoreKit
 
 
 struct WallpaperDetailView: View {
@@ -22,6 +23,22 @@ struct WallpaperDetailView: View {
     init(imageURL: URL, name: String) {
         _viewModel = StateObject(wrappedValue: WallpaperDetailViewModel(imageURL: imageURL))
         self.name = name
+    }
+    
+    private func incrementViewCount() {
+        let defaults = UserDefaults.standard
+        let viewCount = defaults.integer(forKey: "wallpaperDetailViewCount") + 1
+        defaults.set(viewCount, forKey: "wallpaperDetailViewCount")
+        
+        // Check if we should request review (first time or every 5 views)
+        if viewCount == 1 || viewCount % 5 == 0 {
+            // Small delay to ensure view is fully loaded
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                    SKStoreReviewController.requestReview(in: scene)
+                }
+            }
+        }
     }
     
     var body: some View {
@@ -79,7 +96,7 @@ struct WallpaperDetailView: View {
                         }
                     }
                 }
-                .padding(.bottom, geometry.size.height / 6) // Position in lower third
+                .padding(.bottom, geometry.size.height / 6)
             }
         }
         .edgesIgnoringSafeArea(.all)
@@ -94,6 +111,7 @@ struct WallpaperDetailView: View {
         }
         .onAppear {
             viewModel.setup(adManager: adManager)
+            incrementViewCount()
         }
     }
 }

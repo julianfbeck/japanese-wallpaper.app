@@ -17,7 +17,6 @@ struct YourApp: App {
             Group {
                 
                 if self.hasSeenOnboarding {
-                    
                     ContentView()
                 } else {
                     OnboardingView()
