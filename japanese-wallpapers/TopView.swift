@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct TopView: View {
+    @EnvironmentObject private var tabBarVisibility: TabBarVisibility
     @State private var wallpaperController = WallpaperController()
     @State private var currentIndex: Int?
     @Namespace private var namespace
@@ -9,6 +10,9 @@ struct TopView: View {
         NavigationView {
             ZStack {
                 Color(uiColor: .systemBackground)
+                    .onAppear {
+                        tabBarVisibility.isVisible = true
+                    }
                     .ignoresSafeArea()
                 
                 ScrollView(.vertical, showsIndicators: false) {
@@ -47,6 +51,7 @@ struct TopView: View {
         .task {
             await wallpaperController.fetchTopDownloads()
         }
+        
     }
     
     private func hapticFeedback() {

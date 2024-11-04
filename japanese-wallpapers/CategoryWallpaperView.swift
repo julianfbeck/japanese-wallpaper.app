@@ -11,6 +11,7 @@ import CachedAsyncImage
 
 
 struct CategoryWallpaperView: View {
+    @EnvironmentObject private var tabBarVisibility: TabBarVisibility
     let category: Category
     @Namespace private var namespace
     
@@ -20,6 +21,7 @@ struct CategoryWallpaperView: View {
                 .font(.title2)
                 .fontWeight(.bold)
                 .padding(.horizontal)
+               
             
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 10) {
@@ -61,6 +63,9 @@ struct CategoryWallpaperView: View {
                                 .opacity(phase.isIdentity ? 1 : 0)
                                 .scaleEffect(phase.isIdentity ? 1 : 0.8)
                                 .blur(radius: phase.isIdentity ? 0 : 10)
+                        }
+                        .onAppear {
+                            tabBarVisibility.isVisible = true
                         }
                     }
                 }

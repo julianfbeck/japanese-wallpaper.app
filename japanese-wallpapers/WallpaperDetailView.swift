@@ -17,6 +17,8 @@ struct WallpaperDetailView: View {
     @StateObject private var viewModel: WallpaperDetailViewModel
     @EnvironmentObject private var adManager: GlobalAdManager
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var tabBarVisibility: TabBarVisibility
+
     
     let name: String
     
@@ -31,7 +33,7 @@ struct WallpaperDetailView: View {
         defaults.set(viewCount, forKey: "wallpaperDetailViewCount")
         
         // Check if we should request review (first time or every 5 views)
-        if viewCount == 1 || viewCount % 5 == 0 {
+        if viewCount == 1 || viewCount % 10 == 0 {
             // Small delay to ensure view is fully loaded
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
@@ -84,7 +86,10 @@ struct WallpaperDetailView: View {
                                     .cornerRadius(20)
                             }
                             HStack(spacing: 20) {
-                                CloseButton(action: {dismiss()})
+                                CloseButton(action: {
+                                    tabBarVisibility.isVisible = true
+                                    dismiss()
+                                })
                                 DownloadButton(action: {
                                     viewModel.handleDownloadButtonPress()
                                     
@@ -112,6 +117,10 @@ struct WallpaperDetailView: View {
         .onAppear {
             viewModel.setup(adManager: adManager)
             incrementViewCount()
+            tabBarVisibility.isVisible = false
+        }
+        .onDisappear {
+            tabBarVisibility.isVisible = true
         }
     }
 }

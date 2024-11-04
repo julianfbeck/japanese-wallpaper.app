@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct NewView: View {
+    @EnvironmentObject private var tabBarVisibility: TabBarVisibility
     @State private var wallpaperController = WallpaperController()
     @State private var currentIndex: Int?
     @Namespace private var namespace
@@ -17,7 +18,10 @@ struct NewView: View {
             ZStack {
                 Color(uiColor: .systemBackground)
                     .ignoresSafeArea()
-                
+                    .onAppear {
+                        tabBarVisibility.isVisible = true
+                    }
+
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 24) {
                         ForEach(Array(wallpaperController.latestScreenshots.enumerated()), id: \.element.id) { index, wallpaper in
@@ -52,7 +56,7 @@ struct NewView: View {
             }
         }
         .task {
-            await wallpaperController.fetchTopDownloads()
+            await wallpaperController.fetchLatestScreenshots()
         }
     }
     

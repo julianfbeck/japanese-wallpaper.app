@@ -15,9 +15,9 @@ class GlobalAdManager: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     private init() {
-        #if DEBUG
-        GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = [ "28716d5496bfdc5958be9b599af8ceeb" ]
-        #endif
+//        #if DEBUG
+//        GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = [ "28716d5496bfdc5958be9b599af8ceeb" ]
+//        #endif
         setupAdLoadingObserver()
         loadAd()
     }
@@ -82,7 +82,8 @@ class InterstitialAdCoordinator: NSObject, GADFullScreenContentDelegate {
     
     func loadAd(completion: @escaping (Bool) -> Void) {
         GADInterstitialAd.load(
-            withAdUnitID: "ca-app-pub-4155055675967377/9037407522",
+//            withAdUnitID: "ca-app-pub-4155055675967377/9037407522",
+            withAdUnitID: "ca-app-pub-3940256099942544/4411468910",
             request: GADRequest()
         ) { [weak self] ad, error in
             if let error = error {
