@@ -7,15 +7,72 @@
 
 
 import SwiftUI
+import StoreKit
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var globalViewModel: GlobalViewModel
     @State private var showAbout = false
+    @State private var showManageSubscriptions = false
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding: Bool?
 
     var body: some View {
         NavigationStack {
             List {
+                // Premium Section
+                Section {
+                    if globalViewModel.isPro {
+                        HStack {
+                            Label {
+                                Text("Premium Active")
+                            } icon: {
+                                Image(systemName: "crown.fill")
+                                    .foregroundStyle(.orange)
+                            }
+                            Spacer()
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                        }
+                    } else {
+                        Button {
+                            globalViewModel.isShowingPayWall = true
+                        } label: {
+                            Label {
+                                Text("Upgrade to Premium")
+                            } icon: {
+                                Image(systemName: "crown.fill")
+                                    .foregroundStyle(.orange)
+                            }
+                        }
+                    }
+
+                    Button {
+                        globalViewModel.restorePurchase()
+                    } label: {
+                        Label {
+                            Text("Restore Purchases")
+                        } icon: {
+                            Image(systemName: "arrow.clockwise.circle.fill")
+                                .foregroundStyle(.blue)
+                        }
+                    }
+
+                    if globalViewModel.isPro {
+                        Button {
+                            showManageSubscriptions = true
+                        } label: {
+                            Label {
+                                Text("Manage Subscription")
+                            } icon: {
+                                Image(systemName: "gearshape.fill")
+                                    .foregroundStyle(.gray)
+                            }
+                        }
+                    }
+                } header: {
+                    Text("Premium")
+                }
+
                 // General Settings Section
                 Section {
                     Button {
@@ -28,11 +85,53 @@ struct SettingsView: View {
                                 .foregroundStyle(.purple)
                         }
                     }
-                    
-                    
+
+
                 } header: {
                     Text("General")
                 }
+
+                #if DEBUG
+                // Debug Section
+                Section {
+                    Button {
+                        globalViewModel.isPro.toggle()
+                    } label: {
+                        Label {
+                            Text(globalViewModel.isPro ? "Disable Pro (Debug)" : "Enable Pro (Debug)")
+                        } icon: {
+                            Image(systemName: globalViewModel.isPro ? "xmark.circle.fill" : "checkmark.circle.fill")
+                                .foregroundStyle(globalViewModel.isPro ? .red : .green)
+                        }
+                    }
+
+                    Button {
+                        globalViewModel.downloadCount = 0
+                        globalViewModel.hasRemainingFreeDownloads = true
+                    } label: {
+                        Label {
+                            Text("Reset Download Count")
+                        } icon: {
+                            Image(systemName: "arrow.counterclockwise.circle.fill")
+                                .foregroundStyle(.orange)
+                        }
+                    }
+
+                    HStack {
+                        Label {
+                            Text("Downloads Used")
+                        } icon: {
+                            Image(systemName: "number.circle.fill")
+                                .foregroundStyle(.blue)
+                        }
+                        Spacer()
+                        Text("\(globalViewModel.downloadCount)/\(globalViewModel.maxFreeDownloads)")
+                            .foregroundStyle(.secondary)
+                    }
+                } header: {
+                    Text("Debug")
+                }
+                #endif
                 
                 // App Info Section
                 Section {
@@ -85,6 +184,11 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.large)
             .sheet(isPresented: $showAbout) {
                 AboutView()
+            }
+            .sheet(isPresented: $showManageSubscriptions) {
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                    ManageSubscriptionsView(windowScene: windowScene)
+                }
             }
         }
     }
@@ -179,6 +283,38 @@ struct AboutView: View {
     }
 }
 
+struct ManageSubscriptionsView: UIViewControllerRepresentable {
+    let windowScene: UIWindowScene
+
+    func makeUIViewController(context: Context) -> UIViewController {
+        let hostingController = UIHostingController(rootView:
+            VStack {
+                Text("Opening Subscription Management...")
+                    .font(.headline)
+                    .padding()
+                ProgressView()
+                    .padding()
+            }
+        )
+
+        // Open subscription management
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            Task {
+                do {
+                    try await AppStore.showManageSubscriptions(in: windowScene)
+                } catch {
+                    print("Failed to show manage subscriptions: \(error)")
+                }
+            }
+        }
+
+        return hostingController
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+}
+
 #Preview {
     SettingsView()
+        .environmentObject(GlobalViewModel())
 }

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct NewView: View {
     @EnvironmentObject private var tabBarVisibility: TabBarVisibility
+    @EnvironmentObject private var globalViewModel: GlobalViewModel
     @State private var wallpaperController = WallpaperController()
     @State private var currentIndex: Int?
     @Namespace private var namespace
@@ -52,6 +53,26 @@ struct NewView: View {
                 ToolbarItem(placement: .principal) {
                     Text("New Wallpapers")
                         .font(.system(size: 18, weight: .semibold))
+                }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    if !globalViewModel.isPro {
+                        Button(action: {
+                            globalViewModel.isShowingPayWall = true
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "crown.fill")
+                                    .font(.system(size: 12))
+                                Text("PRO")
+                                    .font(.system(size: 12, weight: .bold))
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.orange)
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                        }
+                    }
                 }
             }
         }

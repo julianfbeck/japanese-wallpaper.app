@@ -25,32 +25,64 @@ class WallpaperDetailViewModel: ObservableObject {
     @Published var showAlert = false
     @Published var alertMessage = ""
     @Published var showSuccessAlert = false
+    @Published var showPaywall = false
     @Published var canDownload = false
-    
+
     let imageURL: URL
     weak var adManager: GlobalAdManager?
+    weak var globalViewModel: GlobalViewModel?
     private var cancellables = Set<AnyCancellable>()
-    
+
     init(imageURL: URL) {
         self.imageURL = imageURL
     }
     
-    func setup(adManager: GlobalAdManager) {
+    func setup(adManager: GlobalAdManager, globalViewModel: GlobalViewModel) {
         self.adManager = adManager
-        
+        self.globalViewModel = globalViewModel
+
         adManager.$isAdReady
             .sink { [weak self] isReady in
                 self?.updateButtonState()
             }
             .store(in: &cancellables)
-        
+
+        // Listen to pro status changes
+        globalViewModel.$isPro
+            .sink { [weak self] _ in
+                self?.updateButtonState()
+            }
+            .store(in: &cancellables)
+
+        // Listen to remaining downloads changes
+        globalViewModel.$hasRemainingFreeDownloads
+            .sink { [weak self] _ in
+                self?.updateButtonState()
+            }
+            .store(in: &cancellables)
+
         updateButtonState()
     }
     
     func updateButtonState() {
+        guard let globalViewModel = globalViewModel else {
+            downloadButtonState = .loading
+            return
+        }
+
+        // Check if user can download at all
+        if !globalViewModel.canDownloadWithoutPurchase() {
+            downloadButtonState = .loading
+            return
+        }
+
         if canDownload {
             downloadButtonState = .readyToDownload
+        } else if globalViewModel.isPro {
+            // Pro users can download directly without ads
+            downloadButtonState = .readyToDownload
         } else if let adManager = adManager, adManager.isAdReady {
+            // Free users need to watch an ad
             downloadButtonState = .readyToPlayAd
         } else {
             downloadButtonState = .loading
@@ -58,6 +90,14 @@ class WallpaperDetailViewModel: ObservableObject {
     }
     
     func handleDownloadButtonPress() {
+        guard let globalViewModel = globalViewModel else { return }
+
+        // Check if should show paywall first
+        if globalViewModel.shouldShowPaywall() {
+            showPaywall = true
+            return
+        }
+
         switch downloadButtonState {
         case .loading:
             // Do nothing, button should be disabled
@@ -65,7 +105,13 @@ class WallpaperDetailViewModel: ObservableObject {
         case .readyToPlayAd:
             playAd()
         case .readyToDownload:
-            downloadImage()
+            if globalViewModel.isPro {
+                // Pro users download directly
+                downloadImage()
+            } else {
+                // Free users must have watched an ad
+                downloadImage()
+            }
         }
     }
     
@@ -86,15 +132,19 @@ class WallpaperDetailViewModel: ObservableObject {
     }
     
     func downloadImage() {
-        guard canDownload else {
+        guard let globalViewModel = globalViewModel else { return }
+
+        // For pro users, no ad is needed
+        // For free users, ad must have been watched (canDownload = true)
+        if !globalViewModel.isPro && !canDownload {
             alertMessage = "Please watch an ad before downloading."
             showAlert = true
             return
         }
-        
+
         isDownloading = true
         downloadButtonState = .loading
-        
+
         URLSession.shared.dataTask(with: imageURL) { [weak self] data, response, error in
             DispatchQueue.main.async {
                 if let error = error {
@@ -104,7 +154,7 @@ class WallpaperDetailViewModel: ObservableObject {
                     self?.updateButtonState()
                     return
                 }
-                
+
                 guard let data = data, let image = UIImage(data: data) else {
                     self?.alertMessage = "Failed to create image from downloaded data"
                     self?.showAlert = true
@@ -112,8 +162,12 @@ class WallpaperDetailViewModel: ObservableObject {
                     self?.updateButtonState()
                     return
                 }
-                
+
                 UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+
+                // Record the download in GlobalViewModel
+                globalViewModel.recordDownload()
+
                 self?.showSuccessAlert = true
                 self?.isDownloading = false
                 self?.canDownload = false  // Reset the download permission
@@ -121,7 +175,7 @@ class WallpaperDetailViewModel: ObservableObject {
                 self?.updateButtonState()
             }
         }.resume()
-        
+
         // Simulating download progress
         Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] timer in
             guard let self = self else { timer.invalidate(); return }

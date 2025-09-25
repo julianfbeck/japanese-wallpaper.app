@@ -6,25 +6,35 @@
 //
 
 import SwiftUI
+import RevenueCat
 
 @main
 struct YourApp: App {
+    @StateObject private var globalViewModel = GlobalViewModel()
     @StateObject private var adManager = GlobalAdManager.shared
-    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding: Bool = false
-  
+
+    init() {
+        Purchases.configure(withAPIKey: "appl_DPbifChwFxrGJORLhigNibkbSGg")
+    }
+
     var body: some Scene {
         WindowGroup {
             Group {
-                
-                if self.hasSeenOnboarding {
-                    ContentView()
-                } else {
+
+                if globalViewModel.isShowingOnboarding {
                     OnboardingView()
+                } else {
+                    ContentView()
                 }
             }
+            .environmentObject(globalViewModel)
             .environmentObject(adManager)
             .onAppear {
                 Plausible.shared.configure(domain: "japanese-wallpaper.julianbeck.com", endpoint: "https://stats.juli.sh/api/event")
+            }
+            .fullScreenCover(isPresented: $globalViewModel.isShowingPayWall) {
+                PayWallView()
+                    .environmentObject(globalViewModel)
             }
         }
     }

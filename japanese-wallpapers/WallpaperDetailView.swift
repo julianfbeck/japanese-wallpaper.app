@@ -16,12 +16,13 @@ struct WallpaperDetailView: View {
     @State private var wallpaperController = WallpaperController()
     @StateObject private var viewModel: WallpaperDetailViewModel
     @EnvironmentObject private var adManager: GlobalAdManager
+    @EnvironmentObject private var globalViewModel: GlobalViewModel
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var tabBarVisibility: TabBarVisibility
 
-    
+
     let name: String
-    
+
     init(imageURL: URL, name: String) {
         _viewModel = StateObject(wrappedValue: WallpaperDetailViewModel(imageURL: imageURL))
         self.name = name
@@ -76,13 +77,54 @@ struct WallpaperDetailView: View {
                             .padding(.horizontal)
                     } else {
                         VStack(spacing: 10) {
-                            if viewModel.downloadButtonState == .readyToPlayAd {
-                                Text("Watch an Ad to Download")
+                            if globalViewModel.isPro {
+                                Text("Premium Member - No Ads!")
                                     .font(.system(size: 16, weight: .semibold))
                                     .foregroundColor(.white)
                                     .padding(.horizontal, 20)
                                     .padding(.vertical, 10)
+                                    .background(Color.orange)
+                                    .cornerRadius(20)
+                            } else if viewModel.downloadButtonState == .readyToPlayAd {
+                                VStack(spacing: 8) {
+                                    VStack(spacing: 4) {
+                                        Text("Watch an Ad to Download")
+                                            .font(.system(size: 16, weight: .semibold))
+                                            .foregroundColor(.white)
+                                        if globalViewModel.hasRemainingFreeDownloads {
+                                            Text("\(globalViewModel.remainingFreeDownloads) free downloads left")
+                                                .font(.system(size: 12, weight: .medium))
+                                                .foregroundColor(.white.opacity(0.8))
+                                        }
+                                    }
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 10)
                                     .background(Color.red)
+                                    .cornerRadius(20)
+
+                                    Button(action: {
+                                        globalViewModel.isShowingPayWall = true
+                                    }) {
+                                        HStack(spacing: 6) {
+                                            Image(systemName: "crown.fill")
+                                                .font(.system(size: 12))
+                                            Text("Remove Ads & Go Pro")
+                                                .font(.system(size: 14, weight: .semibold))
+                                        }
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 8)
+                                        .background(Color.orange)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(16)
+                                    }
+                                }
+                            } else if !globalViewModel.canDownloadWithoutPurchase() {
+                                Text("Upgrade for Unlimited Downloads")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 10)
+                                    .background(Color.orange)
                                     .cornerRadius(20)
                             }
                             HStack(spacing: 20) {
@@ -92,11 +134,11 @@ struct WallpaperDetailView: View {
                                 })
                                 DownloadButton(action: {
                                     viewModel.handleDownloadButtonPress()
-                                    
+
                                     Task {
                                         await wallpaperController.incrementDownload(for: self.name )
                                     }
-                                }, state: viewModel.downloadButtonState)
+                                }, state: viewModel.downloadButtonState, globalViewModel: globalViewModel)
                             }
                         }
                     }
@@ -114,8 +156,12 @@ struct WallpaperDetailView: View {
         } message: {
             Text("Image saved to Photos successfully!")
         }
+        .fullScreenCover(isPresented: $viewModel.showPaywall) {
+            PayWallView()
+                .environmentObject(globalViewModel)
+        }
         .onAppear {
-            viewModel.setup(adManager: adManager)
+            viewModel.setup(adManager: adManager, globalViewModel: globalViewModel)
             incrementViewCount()
             tabBarVisibility.isVisible = false
         }
@@ -129,7 +175,8 @@ struct WallpaperDetailView: View {
 struct DownloadButton: View {
     let action: () -> Void
     let state: DownloadButtonState
-    
+    let globalViewModel: GlobalViewModel
+
     var body: some View {
         Button(action: action) {
             Image(systemName: buttonIcon)
@@ -144,26 +191,34 @@ struct DownloadButton: View {
                 )
                 .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 2)
         }
-        .disabled(state == .loading)
+        .disabled(state == .loading || !globalViewModel.canDownloadWithoutPurchase())
     }
-    
+
     private var buttonColor: Color {
+        if !globalViewModel.canDownloadWithoutPurchase() {
+            return .gray
+        }
+
         switch state {
         case .loading:
             return .gray
         case .readyToPlayAd:
-            return .red
+            return globalViewModel.isPro ? .orange : .red
         case .readyToDownload:
-            return .green
+            return globalViewModel.isPro ? .orange : .green
         }
     }
-    
+
     private var buttonIcon: String {
+        if !globalViewModel.canDownloadWithoutPurchase() {
+            return "lock.fill"
+        }
+
         switch state {
         case .loading:
             return "hourglass"
         case .readyToPlayAd:
-            return "play.fill"
+            return globalViewModel.isPro ? "arrow.down.to.line" : "play.fill"
         case .readyToDownload:
             return "arrow.down.to.line"
         }
@@ -217,5 +272,7 @@ struct WallpaperDetailView_Previews: PreviewProvider {
     static var previews: some View {
         WallpaperDetailView(imageURL: URL(string: "https://wallpaper.apps.juli.sh/nature_00001_downscaled.jpg")!, name: "test")
             .environmentObject(GlobalAdManager.shared)
+            .environmentObject(GlobalViewModel())
+            .environmentObject(TabBarVisibility())
     }
 }

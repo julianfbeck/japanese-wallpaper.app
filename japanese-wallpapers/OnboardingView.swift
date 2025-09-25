@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct OnboardingView: View {
-    @AppStorage("hasSeenOnboarding") var hasSeenOnboarding: Bool?
+    @EnvironmentObject private var globalViewModel: GlobalViewModel
     @State private var currentPage = 0
     
     let pages: [OnboardingPage] = [
@@ -95,7 +95,7 @@ struct OnboardingView: View {
                         if currentPage < pages.count - 1 {
                             currentPage += 1
                         } else {
-                            hasSeenOnboarding = true
+                            globalViewModel.isShowingOnboarding = false
                         }
                     }
                 } label: {
@@ -206,5 +206,6 @@ struct WallpaperView: View {
 // Preview Support
 #Preview {
     OnboardingView()
+        .environmentObject(GlobalViewModel())
 }
 

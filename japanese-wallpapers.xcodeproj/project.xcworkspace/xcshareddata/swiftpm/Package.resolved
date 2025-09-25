@@ -1,6 +1,15 @@
 {
-  "originHash" : "098cac794ee302758197c61404f3c2cad7483ccc3a2e12031c123bf46416144c",
+  "originHash" : "4e0784162cb62cdb962f0b11ea918ca1b066b7869bd3cf458e054e5db688de5a",
   "pins" : [
+    {
+      "identity" : "purchases-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/RevenueCat/purchases-ios.git",
+      "state" : {
+        "revision" : "a315ca87fcec9fa6290c538e88e2f0a62f796458",
+        "version" : "5.40.0"
+      }
+    },
     {
       "identity" : "swift-package-manager-google-mobile-ads",
       "kind" : "remoteSourceControl",

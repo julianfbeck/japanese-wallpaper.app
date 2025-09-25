@@ -83,7 +83,7 @@ class InterstitialAdCoordinator: NSObject, GADFullScreenContentDelegate {
     func loadAd(completion: @escaping (Bool) -> Void) {
         GADInterstitialAd.load(
 //            withAdUnitID: "ca-app-pub-4155055675967377/9037407522",
-            withAdUnitID: "ca-app-pub-3940256099942544/4411468910",
+            withAdUnitID: "ca-app-pub-4155055675967377/9037407522",
             request: GADRequest()
         ) { [weak self] ad, error in
             if let error = error {
